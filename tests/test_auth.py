@@ -71,7 +71,11 @@ class TestAuth:
     def test_auth_cases(self, builder, expected_status, message, data_generator):
         payload = builder(self, data_generator)
         re = self.client.auth_a_user(payload)
-        assert re.status == expected_status, message
+        actual_status = re.status
+
+        self.logger.info(f"Actual: {actual_status}; Expect: {expected_status}")
+        assert actual_status == expected_status, message
+        
 
 
 

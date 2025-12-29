@@ -8,7 +8,8 @@ class TestProducts:
         """ For data generator: get all unique product categories from the response """ 
         
         unique_categories = {entry["category"] for entry in self._get_re_json_of_all_products()}
-        assert unique_categories == PRODUCT_CATEGORIES, f"Got {unique_categories}, expected {PRODUCT_CATEGORIES}"
+        self.logger.info(f"Got {unique_categories}, expected {PRODUCT_CATEGORIES}")
+        assert unique_categories == PRODUCT_CATEGORIES
 
     def test_product_price_validity(self):
         """ Check type and value -> positive float or integer """
@@ -20,29 +21,33 @@ class TestProducts:
 
             if not isinstance(price, (float, int)) or float(price) <= 0:
                 invalid_prod.append(prod_id, price)
-            
-        assert not invalid_prod, (f"Invalid product prices found: {invalid_prod}")
+
+        self.logger.info(f"Invalid product prices found: {invalid_prod}")
+        assert not invalid_prod
 
     def test_unique_product_id(self):
         """ Get all products that their ID are not unique """        
 
         json = self._get_re_json_of_all_products()
         duplicated_prod = validate_unique_identifier(json, "id", "title")
-        assert not duplicated_prod, f"Duplicate product IDs found: {duplicated_prod}"
+        self.logger.info(f"Duplicate product IDs found: {duplicated_prod}")
+        assert not duplicated_prod
 
     def test_single_product_consistency(self):
         """ Ensure /products/:id returns the same as found in /products. """
         
         json_all_products = self._get_re_json_of_all_products()
         failures = validate_id_consistency(json_all_products, self._get_re_json_for_product)
-        assert not failures, "Product mismatches found:\n" + "\n".join(failures)
+        self.logger.info(f"Product mismatches found: {"\n".join(failures)}")
+        assert not failures
 
     def test_category_coverage(self):
         """ Ensure every category has at least one product """
         
         counts = Counter(prod.get("category") for prod in self._get_re_json_of_all_products())
         failures = [cat for cat, count in counts.items() if count == 0]
-        assert not failures, f"Empty categories found: {failures}"
+        self.logger.info(f"Empty categories found: {failures}")
+        assert not failures
 
     # --- Helpers ---
 

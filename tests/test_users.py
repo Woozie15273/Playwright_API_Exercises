@@ -10,14 +10,16 @@ class TestUsers:
 
         json = self._get_re_json_of_all_users()
         duplicated_uid = validate_unique_identifier(json, "id", "username")
-        assert not duplicated_uid, f"Duplicate user IDs found: {duplicated_uid}"
+        self.logger.info(f"Duplicate user IDs found: {duplicated_uid}")
+        assert not duplicated_uid
     
     def test_single_user_consistency(self):
         """ Ensure /users/:id returns the same user as found in /users. """
 
         json_all_users = self._get_re_json_of_all_users()
         failures = validate_id_consistency(json_all_users, self._get_re_json_for_user)
-        assert not failures, "User mismatches found:\n" + "\n".join(failures)
+        self.logger.info(f"User mismatches found: {"\n".join(failures)}")
+        assert not failures
 
     def test_validate_email_format(self):
         '''
@@ -37,7 +39,8 @@ class TestUsers:
             if not email_pattern.match(email):
                 invalid_pairs.append((user_id, email))
 
-        assert not invalid_pairs, f"Invalid email formats found: {invalid_pairs}"
+        self.logger.info(f"Invalid email formats found: {invalid_pairs}")
+        assert not invalid_pairs
 
     # --- Parameterized TCs---
 
@@ -59,15 +62,11 @@ class TestUsers:
         if missing_field:
             payload.pop(missing_field, None)
 
-        # Send request
         re = self.client.create_user(payload)
+        actual_status = re.status        
 
-        # Assertion with helpful failure message
-        assert re.status == expected_status, (
-            f"Expected {expected_status} when "
-            f"{'all fields present' if missing_field is None else f'missing {missing_field}'} "
-            f"but got {re.status}"
-        )
+        self.logger.info(f"Actual: {actual_status}; Expect: {expected_status}; When missing {missing_field}")
+        assert actual_status == expected_status
 
 
         
@@ -103,12 +102,10 @@ class TestUsers:
             payload.pop(missing_field, None)
 
         re = self.client.update_user(uid, payload)
+        actual_status = re.status
 
-        assert re.status == expected_status, (
-            f"Expected {expected_status} when "
-            f"{'all fields present' if missing_field is None else f'missing ' + missing_field} "
-            f"but got {re.status}"
-        )
+        self.logger.info(f"Actual: {actual_status}; Expect: {expected_status}; When missing {missing_field}")
+        assert actual_status == expected_status
 
 
 
@@ -122,9 +119,9 @@ class TestUsers:
     def test_update_user_invalid_uid(self, data_generator, uid, expected_status):
         payload = data_generator.generate_user()
         re = self.client.update_user(uid, payload)
-        assert re.status == expected_status, (
-            f"Expected {expected_status} for uid='{uid}' but got {re.status}"
-        )
+        actual_status = re.status
+        self.logger.info(f"Actual: {actual_status}; Expect: {expected_status} for uid='{uid}'")
+        assert actual_status == expected_status
 
 
     # --- Helper ---

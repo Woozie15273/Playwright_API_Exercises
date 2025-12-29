@@ -9,19 +9,22 @@ class TestCarts:
 
         json_all_users = self._get_re_json_of_all_carts()
         failures = validate_id_consistency(json_all_users, self._get_re_json_for_cart)
-        assert not failures, "Carts mismatches found:\n" + "\n".join(failures)
+        self.logger.info(f"Carts mismatches found:{"\n".join(failures)}")
+        assert not failures        
     
     def test_cart_product_reference_integrity(self):
         """Verify that every product referenced in a cart actually exists in /products. """
 
         invalid_products = self._helper_cart_reference_integrity_bulk("productId")
-        assert not invalid_products, f"Invalid product references found: {invalid_products}"
+        self.logger.info(f"Invalid product references found: {invalid_products}")
+        assert not invalid_products        
 
     def test_cart_user_reference_integrity(self):
         """Verify that every cart references a valid user ID that exists in /users. """
 
         invalid_users = self._helper_cart_reference_integrity_bulk("userId")
-        assert not invalid_users, f"Invalid user references found: {invalid_users}"
+        self.logger.info(f"Invalid user references found: {invalid_users}")
+        assert not invalid_users        
 
     def test_cart_product_quantity_validation(self):
         ''' Ensure that every cart has at least one product with positive quantity. '''
@@ -37,13 +40,16 @@ class TestCarts:
                 invalid_cart_ids.append(cart_id)
 
         # Final assertion
-        assert not invalid_cart_ids, f"Found carts with invalid products list: {invalid_cart_ids}"
+        self.logger.info(f"Found carts with invalid products list: {invalid_cart_ids}")
+        assert not invalid_cart_ids        
 
     def test_create_cart_unique_id_validation(self):
         existing_cart = self._get_a_random_cart()
         re = self.client.create_cart(existing_cart)
-        assert re.status == 400, f"A new cart shouldn't be created on a duplicated cart ID"
-        
+        actual =  re.status
+        expect = 400
+        self.logger.info(f"Actual: {actual}; Expect: {expect}")
+        assert actual == 400, f"A new cart shouldn't be created on a duplicated cart ID"
 
 
     @pytest.mark.parametrize(
@@ -64,12 +70,10 @@ class TestCarts:
             payload.pop(missing_field, None)
 
         re = self.client.update_cart(cart_id, payload)
+        actual_status = re.status
 
-        assert re.status == expected_status, (
-            f"Expected {expected_status} when "
-            f"{'all fields present' if missing_field is None else f'missing {missing_field}'} "
-            f"but got {re.status}"
-        )
+        self.logger.info(f"Actual: {actual_status}; Expect: {expected_status}; When missing {missing_field}")
+        assert re.status == expected_status        
 
 
 
@@ -90,12 +94,10 @@ class TestCarts:
             new_cart.pop(missing_field, None)
 
         re = self.client.create_cart(new_cart)
+        actual_status = re.status
 
-        assert re.status == expected_status, (
-            f"Expected {expected_status} when "
-            f"{'all fields present' if missing_field is None else f'missing {missing_field}'} "
-            f"but got {re.status}"
-        )
+        self.logger.info(f"Actual: {actual_status}; Expect: {expected_status}; When missing {missing_field}")
+        assert actual_status == expected_status
 
     # --- Helpers ---
     
