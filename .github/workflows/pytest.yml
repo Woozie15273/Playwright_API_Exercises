@@ -1,0 +1,35 @@
+name: Playwright Pytest Suite
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install pytest==9.0.2 pluggy==1.6.0
+          pip install pytest-html==4.1.1 pytest-metadata==3.1.1
+          pip install playwright==0.7.2
+          pip install Faker==39.0.0 pytest-base-url==2.1.0
+          playwright install  # installs browser binaries
+
+      - name: Run tests with HTML report
+        run: pytest --html=report.html --self-contained-html
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-report
+          path: report.html

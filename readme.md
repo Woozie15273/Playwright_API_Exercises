@@ -16,7 +16,8 @@ This project demonstrates a comprehensive end-to-end API testing framework built
 ## Prerequisites
 
 - **Python**: 3.14.0  
-- **Playwright**: Latest version  
+- **Playwright**: Latest version
+- **pytest-html**: Latest version  
 - **Faker**: [Documentation](https://faker.readthedocs.io/en/master/index.html)  
 
 ---
