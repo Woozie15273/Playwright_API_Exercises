@@ -79,7 +79,7 @@ def data_generator():
 
 # --- Common helpers ---
 
-def validate_id_consistency(re_json: list, single_identifier_function: function):
+def validate_id_consistency(re_json: list, single_identifier_function):
     """ 
     To make sure GET (single) has a same entry as found in GET (all).
     "id" is the shared identifier for Carts, Products, and Users.
